@@ -1,26 +1,101 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Backgrounds - Warm Paper */
+  --bg-canvas: #FAF8F5;
+  --bg-surface: #F2EFE9;
+  --bg-elevated: #FFFFFF;
+
+  /* Typography - Ink */
+  --text-primary: #18181B;
+  --text-secondary: #52525B;
+  --text-muted: #71717A;
+
+  /* Accents - Burnt Sienna */
+  --accent-primary: #9A3412;
+  --accent-hover: #7C2D12;
+  --accent-subtle: #FFEDD5;
+
+  /* Borders */
+  --border-hairline: #E4E0D8;
+  --border-strong: #18181B;
+
+  /* Status */
+  --status-live: #15803D;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  /* Motion */
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors */
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-elevated: var(--bg-elevated);
+
+  --color-ink: var(--text-primary);
+  --color-ink-secondary: var(--text-secondary);
+  --color-ink-muted: var(--text-muted);
+
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+
+  --color-hairline: var(--border-hairline);
+  --color-strong: var(--border-strong);
+  --color-live: var(--status-live);
+
+  /* Fonts */
+  --font-serif: var(--font-serif), Georgia, serif;
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-mono: var(--font-mono), monospace;
+
+  /* Radius */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+
+  /* Motion & Layout */
+  --ease-editorial: var(--ease-editorial);
+  --max-width-editorial: 1200px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, .font-editorial {
+    font-family: var(--font-serif), Georgia, serif;
+    letter-spacing: -0.02em;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Editorial Animated Underline Link */
+.link-editorial {
+  position: relative;
+  display: inline-block;
+}
+
+.link-editorial::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 320ms var(--ease-editorial);
+}
+
+.link-editorial:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }

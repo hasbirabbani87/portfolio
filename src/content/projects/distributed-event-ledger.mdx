@@ -1,0 +1,41 @@
+---
+index: "01"
+title: "Krono — Distributed Event Ledger"
+category: "Full-Stack Architecture & Real-time Analytics"
+year: "2026"
+role: "Lead Full-Stack Engineer"
+metrics: "12k req/s · 18ms p99"
+summary: "Mesin ingesti event berthroughput tinggi dengan pemrosesan idempoten dan dashboard analitik latensi rendah untuk transaksi finansial."
+stack: ["Next.js", "TypeScript", "Go", "PostgreSQL", "Redis"]
+liveUrl: "https://example.com"
+repoUrl: "https://github.com"
+---
+
+## The Engineering Problem
+
+Pada sistem pembayaran berskala tinggi, lonjakan trafik sering menyebabkan duplikasi pencatatan *webhook* akibat mekanisme *retry* dari penyedia pembayaran. Tantangan utamanya adalah menjamin **idempotensi ketat** tanpa mengorbankan latensi penulisan di bawah 20ms.
+
+<Callout title="Key Architectural Trade-off">
+  Alih-alih mengunci baris tabel PostgreSQL secara langsung pada setiap request masuk, kami menggunakan Redis Lua Script sebagai atomic gatekeeper sebelum antrean masuk ke worker penulisan.
+</Callout>
+
+## Idempotency Gatekeeper Implementation
+
+Berikut implementasi *middleware* pengecekan kunci idempotensi yang memastikan transaksi dengan `idempotency-key` sama hanya diproses satu kali:
+
+```ts
+export async function ensureIdempotency(key: string, ttlSeconds = 86400) {
+  const lockKey = `idem:${key}`;
+  // SET NX mengembalikan 'OK' hanya jika key belum pernah ada
+  const acquired = await redis.set(lockKey, "PROCESSING", {
+    nx: true,
+    ex: ttlSeconds,
+  });
+
+  if (!acquired) {
+    const cachedResult = await redis.get(`res:${key}`);
+    return { isDuplicate: true, data: cachedResult };
+  }
+
+  return { isDuplicate: false, data: null };
+}
